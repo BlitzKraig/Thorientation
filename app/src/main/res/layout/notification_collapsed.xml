@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="2dp"
+    android:paddingTop="2dp"
+    android:paddingEnd="2dp"
+    android:paddingBottom="2dp"
+    android:weightSum="4">
+
+    <!-- Button 1: Left (Portrait L) -->
+    <LinearLayout
+        android:id="@+id/notif_col_btn_1"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="2dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_notif_button"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <ImageView
+            android:id="@+id/notif_col_iv_1"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="3dp"
+            android:contentDescription="Portrait L"
+            android:src="@drawable/ic_rotate_portrait" />
+
+        <TextView
+            android:id="@+id/notif_col_tv_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Portrait L"
+            android:textColor="#D8D9E0"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Button 2: Landscape -->
+    <LinearLayout
+        android:id="@+id/notif_col_btn_2"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_notif_button"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <ImageView
+            android:id="@+id/notif_col_iv_2"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="3dp"
+            android:contentDescription="Landscape"
+            android:src="@drawable/ic_rotate_landscape" />
+
+        <TextView
+            android:id="@+id/notif_col_tv_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Landscape"
+            android:textColor="#D8D9E0"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Button 3: Right (Portrait R) -->
+    <LinearLayout
+        android:id="@+id/notif_col_btn_3"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_notif_button"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <ImageView
+            android:id="@+id/notif_col_iv_3"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="3dp"
+            android:contentDescription="Portrait R"
+            android:src="@drawable/ic_rotate_rev_portrait" />
+
+        <TextView
+            android:id="@+id/notif_col_tv_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Portrait R"
+            android:textColor="#D8D9E0"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Button 4: Auto -->
+    <LinearLayout
+        android:id="@+id/notif_col_btn_4"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="2dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_notif_button"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <ImageView
+            android:id="@+id/notif_col_iv_4"
+            android:layout_width="14dp"
+            android:layout_height="14dp"
+            android:layout_marginEnd="3dp"
+            android:contentDescription="Auto"
+            android:src="@drawable/ic_rotate_auto" />
+
+        <TextView
+            android:id="@+id/notif_col_tv_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Auto"
+            android:textColor="#D8D9E0"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

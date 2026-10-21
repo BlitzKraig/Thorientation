@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">Thorientation</string>
+    <string name="subtitle">Dual Display Controller</string>
+
+    <!-- Tiles -->
+    <string name="tile_top_screen">Top Screen</string>
+    <string name="tile_bottom_screen">Bottom Screen</string>
+    <string name="tile_dual_presets">Preset</string>
+
+    <!-- Orientations -->
+    <string name="orientation_auto">Auto Rotate</string>
+    <string name="orientation_portrait">Portrait L</string>
+    <string name="orientation_landscape">Landscape</string>
+    <string name="orientation_reverse_portrait">Portrait R</string>
+
+    <!-- Short Orientations -->
+    <string name="rot_auto">Auto</string>
+    <string name="rot_portrait">Portrait L</string>
+    <string name="rot_landscape">Landscape</string>
+    <string name="rot_rev_portrait">Portrait R</string>
+
+    <!-- Presets -->
+    <string name="preset_landscape">Landscape</string>
+    <string name="preset_landscape_desc">Both screens set to Landscape</string>
+    <string name="preset_portrait">Portrait L</string>
+    <string name="preset_portrait_desc">Both screens set to Portrait L</string>
+    <string name="preset_portrait_reverse">Portrait R</string>
+    <string name="preset_portrait_reverse_desc">Both screens set to Portrait R</string>
+    <string name="preset_auto">Auto</string>
+    <string name="preset_auto_desc">Both screens set to Auto-rotate</string>
+
+    <!-- Engine -->
+    <string name="engine_overlay">Display Overlay</string>
+    <string name="engine_settings">System Settings</string>
+
+    <!-- Statuses -->
+    <string name="status_active">Ready</string>
+    <string name="status_permission_needed">Permission Required</string>
+    <string name="status_not_running">Not Running</string>
+
+    <!-- Persistent Notification -->
+    <string name="pref_persistent_notif_title">Persistent Notification</string>
+    <string name="pref_persistent_notif_desc">Show controls in notification shade to change orientation or presets</string>
+    <string name="notif_channel_name">Quick Controls</string>
+    <string name="notif_channel_desc">Persistent notification with orientation and preset buttons</string>
+    <string name="notif_target_presets">Presets</string>
+    <string name="notif_target_top">Top Screen</string>
+    <string name="notif_target_bottom">Bottom Screen</string>
+    <string name="notif_permission_required">Notification permission required to display persistent controls</string>
+
+    <!-- Quick Settings Tiles Info -->
+    <string name="section_quick_tiles">QUICK SETTINGS TILES</string>
+    <string name="quick_tiles_title">Quick Settings Integration</string>
+    <string name="quick_tiles_desc">Control screen orientation from any app or game via your notification shade tiles.</string>
+    <string name="quick_tile_preset_label">Preset Tile:</string>
+    <string name="quick_tile_preset_desc">Cycles through dual presets on each tap.</string>
+    <string name="quick_tile_top_label">Top Screen Tile:</string>
+    <string name="quick_tile_top_desc">Instant dialog to select Top Screen orientation.</string>
+    <string name="quick_tile_bottom_label">Bottom Screen Tile:</string>
+    <string name="quick_tile_bottom_desc">Instant dialog to select Bottom Screen orientation.</string>
+    <string name="quick_tiles_tip">To add these tiles: swipe down twice from the top of your screen, tap the pencil (Edit) icon, and drag the Thorientation tiles into your active panel.</string>
+</resources>

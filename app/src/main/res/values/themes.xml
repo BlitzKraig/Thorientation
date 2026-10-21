@@ -1,0 +1,24 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.Thorientation" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="android:statusBarColor">@color/surface_dark_bg</item>
+        <item name="android:navigationBarColor">@color/surface_dark_bg</item>
+        <item name="android:windowBackground">@color/surface_dark_bg</item>
+    </style>
+
+    <!-- Translucent Dialog Theme for Quick Tile Rotation Picker -->
+    <style name="Theme.Thorientation.Dialog" parent="Theme.Material3.Dark.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.7</item>
+    </style>
+
+    <!-- Backward compatibility aliases -->
+    <style name="Theme.ThorScreenManager" parent="Theme.Thorientation" />
+    <style name="Theme.ThorScreenManager.Dialog" parent="Theme.Thorientation.Dialog" />
+</resources>

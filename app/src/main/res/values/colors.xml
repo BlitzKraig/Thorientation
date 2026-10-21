@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand / Accent Colors (Clean & Minimalist) -->
+    <color name="brand_primary">#FFFFFF</color>
+    <color name="brand_primary_variant">#D8D9E0</color>
+    <color name="brand_secondary">#8E909D</color>
+    <color name="brand_accent">#34C759</color>
+    <color name="brand_warning">#FF9F0A</color>
+    <color name="brand_danger">#FF453A</color>
+
+    <!-- Deep Neutral Dark OLED Surfaces -->
+    <color name="surface_dark_bg">#111215</color>
+    <color name="surface_card">#1A1B20</color>
+    <color name="surface_card_selected">#24252D</color>
+    <color name="surface_card_border">#2A2B34</color>
+    <color name="surface_card_border_active">#444756</color>
+
+    <!-- Button Surfaces -->
+    <color name="button_inactive_bg">#202128</color>
+    <color name="button_inactive_stroke">#2D2E38</color>
+    <color name="button_inactive_icon">#8E909D</color>
+
+    <color name="button_active_bg">#FFFFFF</color>
+    <color name="button_active_icon">#111215</color>
+    <color name="button_active_text">#111215</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#F4F4F6</color>
+    <color name="text_secondary">#8E909D</color>
+    <color name="text_tertiary">#5A5C66</color>
+
+    <!-- Status Badges -->
+    <color name="badge_neutral_bg">#24252D</color>
+    <color name="badge_neutral_text">#B0B2BD</color>
+    <color name="badge_success_bg">#16281C</color>
+    <color name="badge_success_text">#34C759</color>
+    <color name="badge_warning_bg">#2B2011</color>
+    <color name="badge_warning_text">#FF9F0A</color>
+    <color name="badge_error_bg">#2B1414</color>
+    <color name="badge_error_text">#FF453A</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="dialog_scrim">#CC000000</color>
+</resources>

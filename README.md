@@ -4,6 +4,8 @@
 
 It allows independent, seamless orientation management of both the primary top screen (6.0" AMOLED) and secondary bottom screen (3.92" AMOLED), featuring dynamic **Quick Settings Tiles**, quick selection popups, dual-screen presets, and companion power-saving tools.
 
+> **Note**: This tool was built as a personal fix. I'm simply sharing it in case anyone else finds it useful. It was "vibe coded", and I'm not interested in debating that. FWIW, I am a professional software engineer with over a decade of experience, but have very little free personal time to build things. If anyone has an issue with vibe coding, please feel free to ignore this project and move on.
+
 ---
 
 ## ✨ Features

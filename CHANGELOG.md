@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-10-22
+
+### Added
+- **Master Power Switch**:
+  - Main screen on/off switch providing instant, global control over orientation management without revoking system permissions.
+  - Automatically manages background overlays and persistence services, and updates Quick Settings tiles to reflect active status.
+- **Background Persistence via Accessibility Service**:
+  - Optional Accessibility Service (`OrientationAccessibilityService`) to maintain secondary screen orientation across task switcher dismissals.
+  - Dedicated UI toggle card with full support for programmatic deactivation (`disableSelf()`).
+- **Start at Boot Preference & Toggle**:
+  - UI switch to control whether Thorientation automatically launches and restores display rotations on system reboot (`BootReceiver`).
+- **Enhanced Quick Settings & Presets**:
+  - Dual Preset Quick Settings tile now features direct preset selection dialog support in addition to tap cycling.
+- **Modern Adaptive App Icon**:
+  - Clean light 'T' motif with subtle rotation swooshes and dark metallic background.
+
+### Fixed
+- Resolved potential Foreground Service crashes and state desynchronization during rapid Quick Settings tile interaction.
+- Resolved orientation reset when swiping Thorientation out of the Android Recents / App Switcher.
+
 ## [1.0.0] - 2026-10-22
 
 ### Added

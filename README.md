@@ -33,9 +33,11 @@ Add the tiles to your AYN Thor notification pull-down shade for instant access a
 * Works completely offline and persists without requiring running background daemons or wireless debugging pairing codes.
 
 ### 4. Built-in Screen Management Tools
+* ⚡ **Master Power Switch**: One-tap master switch to activate or suspend all orientation management on the fly without revoking permissions.
+* 🛡️ **Background Persistence**: Optional accessibility service integration ensuring secondary display orientation persists even if Thorientation is swiped out of the Android App Switcher (Recents).
 * 🔋 **Bottom Screen Standby (AMOLED Blackout)**: Turn off/dim the bottom display completely when playing single-screen titles to save battery and eliminate unwanted heat.
 * 🚀 **Launch App on Bottom Display**: Browse installed apps (browsers, Discord, YouTube, companion guides) and launch them directly onto the bottom screen using Android's multi-display windowing APIs.
-* 🔄 **Persistent Boot Restoration**: Automatically restores your chosen screen rotations after an OS reboot.
+* 🔄 **Persistent Boot Restoration**: Automatically restores your chosen screen rotations after an OS reboot (with optional start-at-boot toggle).
 
 ---
 
@@ -43,13 +45,13 @@ Add the tiles to your AYN Thor notification pull-down shade for instant access a
 
 ### Direct APK Download
 1. Head over to the [GitHub Releases](https://github.com/BlitzKraig/Thorientation/releases) page.
-2. Download the latest `Thorientation-v1.0.0.apk`.
+2. Download the latest `Thorientation-v1.1.0.apk`.
 3. Open and install it on your AYN Thor (allow installing unknown apps if prompted).
 
 ### Install via ADB
 Alternatively, connect your AYN Thor via USB or wireless debugging and run:
 ```bash
-adb install -r Thorientation-v1.0.0.apk
+adb install -r Thorientation-v1.1.0.apk
 ```
 
 ---

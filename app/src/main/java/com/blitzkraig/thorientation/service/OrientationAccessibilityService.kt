@@ -23,8 +23,13 @@ class OrientationAccessibilityService : AccessibilityService() {
             return
         }
 
-        // Re-apply saved orientations to ensure top and bottom screens stay in sync
         val engine = RotationEngine.get(this)
+        if (!engine.isMasterEnabled()) {
+            Log.i(TAG, "Master switch is disabled; skipping orientation restore in AccessibilityService")
+            return
+        }
+
+        // Re-apply saved orientations to ensure top and bottom screens stay in sync
         val displays = engine.getDisplays()
         for (display in displays) {
             val saved = engine.getSavedOrientation(display.displayId)

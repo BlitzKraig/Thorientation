@@ -28,14 +28,15 @@ class DualPresetTileService : TileService() {
     private fun updateTileState() {
         val tile = qsTile ?: return
         val engine = RotationEngine.get(this)
+        val isMaster = engine.isMasterEnabled()
         val activePreset = engine.getActivePreset()
 
         tile.label = getString(R.string.tile_dual_presets)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.subtitle = getString(activePreset.titleRes)
+            tile.subtitle = if (isMaster) getString(activePreset.titleRes) else "Off"
         }
         tile.icon = Icon.createWithResource(this, R.drawable.ic_dual_screen)
-        tile.state = Tile.STATE_ACTIVE
+        tile.state = if (isMaster) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.updateTile()
     }
 }

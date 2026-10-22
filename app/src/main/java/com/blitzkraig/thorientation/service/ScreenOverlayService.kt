@@ -110,14 +110,20 @@ class ScreenOverlayService : Service() {
         }
         startForegroundServiceNotification()
         if (BootReceiver.isStartAtBootEnabled(this)) {
-            restoreSavedOrientations()
+            val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            if (prefs.getBoolean(KEY_MASTER_ENABLED, true)) {
+                restoreSavedOrientations()
+            }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isMaster = prefs.getBoolean(KEY_MASTER_ENABLED, true)
+
         if (intent == null) {
             Log.i(TAG, "Service restarted by system with null intent")
-            if (BootReceiver.isStartAtBootEnabled(this)) {
+            if (BootReceiver.isStartAtBootEnabled(this) && isMaster) {
                 restoreSavedOrientations()
                 checkStopSelfIfIdle()
                 return START_STICKY
@@ -128,7 +134,7 @@ class ScreenOverlayService : Service() {
         }
 
         val action = intent.action ?: run {
-            if (BootReceiver.isStartAtBootEnabled(this)) {
+            if (BootReceiver.isStartAtBootEnabled(this) && isMaster) {
                 restoreSavedOrientations()
                 checkStopSelfIfIdle()
                 return START_STICKY
@@ -139,6 +145,16 @@ class ScreenOverlayService : Service() {
         }
 
         when (action) {
+            ACTION_SET_MASTER_ENABLED -> {
+                val enabled = intent.getBooleanExtra(EXTRA_MASTER_ENABLED, true)
+                prefs.edit().putBoolean(KEY_MASTER_ENABLED, enabled).apply()
+                if (enabled) {
+                    restoreSavedOrientations()
+                } else {
+                    clearAllOverlaysInternal()
+                }
+                checkStopSelfIfIdle()
+            }
             ACTION_SET_OVERLAY_ORIENTATION -> {
                 val displayId = intent.getIntExtra(EXTRA_DISPLAY_ID, -1)
                 val orientationOrdinal = intent.getIntExtra(EXTRA_ORIENTATION, -1)
@@ -163,7 +179,6 @@ class ScreenOverlayService : Service() {
             ACTION_UPDATE_NOTIFICATION -> {
                 if (intent.hasExtra(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED)) {
                     val enabled = intent.getBooleanExtra(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED, false)
-                    val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
                     prefs.edit().putBoolean(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED, enabled).apply()
                 }
                 startForegroundServiceNotification()
@@ -177,13 +192,18 @@ class ScreenOverlayService : Service() {
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         Log.d(TAG, "onTaskRemoved: app task removed from recents, keeping overlay service active")
-        if (activeOverlays.isEmpty() && BootReceiver.isStartAtBootEnabled(this)) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (activeOverlays.isEmpty() && BootReceiver.isStartAtBootEnabled(this) && prefs.getBoolean(KEY_MASTER_ENABLED, true)) {
             restoreSavedOrientations()
         }
     }
 
     private fun restoreSavedOrientations() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        if (!prefs.getBoolean(KEY_MASTER_ENABLED, true)) {
+            Log.d(TAG, "Master switch is disabled; skipping restoreSavedOrientations")
+            return
+        }
         val displays = displayManager.displays
         for (display in displays) {
             val key = "$KEY_SAVED_ROTATION_PREFIX${display.displayId}"
@@ -442,21 +462,29 @@ class ScreenOverlayService : Service() {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    private fun clearAllOverlaysInternal() {
         orientationListener.disable()
-        displayManager.unregisterDisplayListener(displayListener)
-        mainHandler.removeCallbacksAndMessages(null)
         activeOverlays.forEach { (_, pair) ->
-            try { pair.first.removeView(pair.second) } catch (_: Throwable) {}
+            try { pair.first.removeView(pair.second) } catch (e: Throwable) {
+                Log.w(TAG, "Error removing overlay view", e)
+            }
         }
         activeOverlays.clear()
         autoTrackingDisplays.clear()
         isTopAuto = false
         standbyOverlayView?.let { (wm, view) ->
-            try { wm.removeView(view) } catch (_: Throwable) {}
+            try { wm.removeView(view) } catch (e: Throwable) {
+                Log.w(TAG, "Error removing standby overlay view", e)
+            }
         }
         standbyOverlayView = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        displayManager.unregisterDisplayListener(displayListener)
+        mainHandler.removeCallbacksAndMessages(null)
+        clearAllOverlaysInternal()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -466,14 +494,17 @@ class ScreenOverlayService : Service() {
         const val NOTIFICATION_ID = 1001
 
         private const val PREFS_NAME = "thorientation_prefs"
+        const val KEY_MASTER_ENABLED = "master_enabled"
         private const val KEY_SAVED_ROTATION_PREFIX = "saved_rot_disp_"
         private const val KEY_BOTTOM_STANDBY = "bottom_standby"
 
+        const val ACTION_SET_MASTER_ENABLED = "com.blitzkraig.thorientation.action.SET_MASTER_ENABLED"
         const val ACTION_SET_OVERLAY_ORIENTATION = "com.blitzkraig.thorientation.action.SET_OVERLAY_ORIENTATION"
         const val ACTION_CLEAR_OVERLAY = "com.blitzkraig.thorientation.action.CLEAR_OVERLAY"
         const val ACTION_SET_STANDBY = "com.blitzkraig.thorientation.action.SET_STANDBY"
         const val ACTION_UPDATE_NOTIFICATION = "com.blitzkraig.thorientation.action.UPDATE_NOTIFICATION"
 
+        const val EXTRA_MASTER_ENABLED = "extra_master_enabled"
         const val EXTRA_DISPLAY_ID = "extra_display_id"
         const val EXTRA_ORIENTATION = "extra_orientation"
         const val EXTRA_STANDBY_ENABLE = "extra_standby_enable"

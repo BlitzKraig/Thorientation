@@ -86,6 +86,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
+        binding.switchMaster.setOnCheckedChangeListener { _, isChecked ->
+            onMasterToggle(isChecked)
+        }
+        binding.cardMasterSwitch.setOnClickListener {
+            binding.switchMaster.isChecked = !binding.switchMaster.isChecked
+        }
+
         binding.btnRefresh.setOnClickListener {
             refreshUi()
             Toast.makeText(this, "Displays refreshed", Toast.LENGTH_SHORT).show()
@@ -138,6 +145,16 @@ class MainActivity : AppCompatActivity() {
         binding.cardPersistenceService.setOnClickListener {
             binding.switchPersistenceService.isChecked = !binding.switchPersistenceService.isChecked
         }
+    }
+
+    private fun onMasterToggle(isChecked: Boolean) {
+        engine.setMasterEnabled(isChecked)
+        Toast.makeText(
+            this,
+            if (isChecked) "Thorientation enabled" else "Thorientation disabled — screens released",
+            Toast.LENGTH_SHORT
+        ).show()
+        refreshUi()
     }
 
     private fun onPersistenceServiceToggle(isChecked: Boolean) {
@@ -206,6 +223,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applyPreset(preset: DualPreset) {
+        if (!engine.isMasterEnabled()) {
+            engine.setMasterEnabled(true)
+        }
         val ok = engine.applyPreset(preset)
         if (ok) {
             Toast.makeText(this, "Applied preset: ${getString(preset.titleRes)}", Toast.LENGTH_SHORT).show()
@@ -216,6 +236,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun refreshUi() {
+        updateMasterSwitchUi()
         updateForceLandscapeBanner()
         updateEngineBanner()
         renderDisplayCards()
@@ -223,6 +244,42 @@ class MainActivity : AppCompatActivity() {
         updatePersistentNotifUi()
         updateStartAtBootUi()
         updatePersistenceServiceUi()
+    }
+
+    private fun updateMasterSwitchUi() {
+        val isMaster = engine.isMasterEnabled()
+        if (binding.switchMaster.isChecked != isMaster) {
+            binding.switchMaster.setOnCheckedChangeListener(null)
+            binding.switchMaster.isChecked = isMaster
+            binding.switchMaster.setOnCheckedChangeListener { _, isChecked ->
+                onMasterToggle(isChecked)
+            }
+        }
+
+        if (isMaster) {
+            binding.cardMasterSwitch.setBackgroundResource(R.drawable.bg_card_selected)
+            binding.ivMasterPower.imageTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.brand_accent)
+            )
+            binding.tvMasterStatus.text = getString(R.string.pref_master_switch_desc_on)
+            binding.tvMasterStatus.setTextColor(ContextCompat.getColor(this, R.color.badge_success_text))
+            binding.tvHeaderSubtitle.text = getString(R.string.subtitle)
+        } else {
+            binding.cardMasterSwitch.setBackgroundResource(R.drawable.bg_card)
+            binding.ivMasterPower.imageTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(this, R.color.text_tertiary)
+            )
+            binding.tvMasterStatus.text = getString(R.string.pref_master_switch_desc_off)
+            binding.tvMasterStatus.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+            binding.tvHeaderSubtitle.text = "${getString(R.string.subtitle)} • Off"
+        }
+
+        val contentAlpha = if (isMaster) 1.0f else 0.45f
+        binding.containerDisplayCards.alpha = contentAlpha
+        binding.btnPresetLandscape.alpha = contentAlpha
+        binding.btnPresetPortrait.alpha = contentAlpha
+        binding.btnPresetPortraitReverse.alpha = contentAlpha
+        binding.btnPresetAuto.alpha = contentAlpha
     }
 
     private fun updateStartAtBootUi() {
@@ -286,17 +343,26 @@ class MainActivity : AppCompatActivity() {
         val hasOverlay = OverlayEngine.isAvailable(this)
         val hasWriteSettings = SettingsEngine.getStatus(this) == PrivilegeStatus.READY
         val isReady = hasOverlay && hasWriteSettings
+        val isMaster = engine.isMasterEnabled()
 
         binding.ivEngineIcon.setImageResource(R.drawable.ic_dual_screen)
         binding.ivEngineIcon.setColorFilter(
             ContextCompat.getColor(this, if (isReady) R.color.text_primary else R.color.brand_warning)
         )
         binding.tvEngineTitle.text = "Engine: Overlay & Settings"
-        binding.tvEngineBadge.text = if (isReady) "Ready" else "Setup Needed"
+        binding.tvEngineBadge.text = when {
+            !isReady -> "Setup Needed"
+            !isMaster -> "Paused"
+            else -> "Ready"
+        }
         binding.tvEngineBadge.setTextColor(
             ContextCompat.getColor(
                 this,
-                if (isReady) R.color.badge_success_text else R.color.badge_warning_text
+                when {
+                    !isReady -> R.color.badge_warning_text
+                    !isMaster -> R.color.badge_warning_text
+                    else -> R.color.badge_success_text
+                }
             )
         )
 
@@ -402,6 +468,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSelectOrientation(displayId: Int, orientation: ScreenOrientation) {
+        if (!engine.isMasterEnabled()) {
+            engine.setMasterEnabled(true)
+        }
         val success = engine.setOrientation(displayId, orientation)
         if (success) {
             Toast.makeText(this, "Set Display $displayId to ${getString(orientation.shortLabelRes)}", Toast.LENGTH_SHORT).show()

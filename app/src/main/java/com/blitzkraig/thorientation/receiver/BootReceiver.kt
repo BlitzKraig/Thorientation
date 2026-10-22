@@ -19,8 +19,13 @@ class BootReceiver : BroadcastReceiver() {
                 return
             }
 
-            Log.i(TAG, "Device booted / package updated, re-applying saved screen orientations")
             val engine = RotationEngine.get(context)
+            if (!engine.isMasterEnabled()) {
+                Log.i(TAG, "Device booted, but master switch is disabled; skipping orientation restore")
+                return
+            }
+
+            Log.i(TAG, "Device booted / package updated, re-applying saved screen orientations")
             val displays = engine.getDisplays()
             for (display in displays) {
                 val saved = engine.getSavedOrientation(display.displayId)

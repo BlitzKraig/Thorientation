@@ -2,6 +2,11 @@
     <string name="app_name">Thorientation</string>
     <string name="subtitle">Dual Display Controller</string>
 
+    <!-- Master Switch -->
+    <string name="pref_master_switch_title">Master Switch</string>
+    <string name="pref_master_switch_desc_on">Active — enforcing screen orientations</string>
+    <string name="pref_master_switch_desc_off">Disabled — screen overlays released</string>
+
     <!-- Tiles -->
     <string name="tile_top_screen">Top Screen</string>
     <string name="tile_bottom_screen">Bottom Screen</string>

@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.engine
+package com.blitzkraig.thorientation.engine
 
 import android.content.Context
 import android.content.Intent
@@ -44,6 +44,22 @@ object OverlayEngine {
             action = ScreenOverlayService.ACTION_SET_STANDBY
             putExtra(ScreenOverlayService.EXTRA_DISPLAY_ID, displayId)
             putExtra(ScreenOverlayService.EXTRA_STANDBY_ENABLE, enable)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
+        }
+        return true
+    }
+
+    fun setMasterEnabled(context: Context, enabled: Boolean): Boolean {
+        if (!isAvailable(context)) return false
+
+        val intent = Intent(context, ScreenOverlayService::class.java).apply {
+            action = ScreenOverlayService.ACTION_SET_MASTER_ENABLED
+            putExtra(ScreenOverlayService.EXTRA_MASTER_ENABLED, enabled)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

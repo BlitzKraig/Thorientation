@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.service
+package com.blitzkraig.thorientation.service
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -38,6 +38,7 @@ class BottomScreenTileService : TileService() {
         val bottomDisplay = displayManager.displays.firstOrNull { it.displayId != android.view.Display.DEFAULT_DISPLAY }
         val displayId = bottomDisplay?.displayId ?: 1
         val engine = RotationEngine.get(this)
+        val isMaster = engine.isMasterEnabled()
 
         val currentOrientation = engine.getSavedOrientation(displayId)
             ?: (bottomDisplay?.rotation?.let { ScreenOrientation.fromSurfaceRotation(it) })
@@ -45,10 +46,10 @@ class BottomScreenTileService : TileService() {
 
         tile.label = getString(R.string.tile_bottom_screen)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.subtitle = getString(currentOrientation.shortLabelRes)
+            tile.subtitle = if (isMaster) getString(currentOrientation.shortLabelRes) else "Off"
         }
         tile.icon = Icon.createWithResource(this, currentOrientation.iconRes)
-        tile.state = Tile.STATE_ACTIVE
+        tile.state = if (isMaster) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.updateTile()
     }
 }

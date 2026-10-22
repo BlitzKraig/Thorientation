@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.engine
+package com.blitzkraig.thorientation.engine
 
 import android.content.ComponentName
 import android.content.Context
@@ -109,12 +109,40 @@ class RotationEngine(private val context: Context) {
         }
     }
 
+    fun isMasterEnabled(): Boolean {
+        return prefs.getBoolean(KEY_MASTER_ENABLED, true)
+    }
+
+    fun setMasterEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_MASTER_ENABLED, enabled).apply()
+        if (enabled) {
+            val displays = getDisplays()
+            for (display in displays) {
+                val saved = getSavedOrientation(display.displayId)
+                if (saved != null) {
+                    setOrientation(display.displayId, saved)
+                }
+            }
+            if (isBottomStandbyEnabled()) {
+                setBottomStandby(true)
+            }
+        } else {
+            OverlayEngine.setMasterEnabled(context, false)
+        }
+        requestTileUpdates()
+        PersistentNotificationHelper.update(context)
+    }
+
     /**
      * Applies orientation to a specific display using overlay and system settings.
      */
     fun setOrientation(displayId: Int, orientation: ScreenOrientation): Boolean {
         Log.i(TAG, "Request to rotate display $displayId to ${orientation.name}")
         checkAndWarnForceLandscape()
+
+        if (!isMasterEnabled()) {
+            prefs.edit().putBoolean(KEY_MASTER_ENABLED, true).apply()
+        }
 
         // Keep system settings in sync if WRITE_SETTINGS is granted (for primary display)
         if (displayId == 0 && SettingsEngine.getStatus(context) == PrivilegeStatus.READY) {
@@ -194,6 +222,7 @@ class RotationEngine(private val context: Context) {
     companion object {
         private const val TAG = "RotationEngine"
         private const val PREFS_NAME = "thorientation_prefs"
+        const val KEY_MASTER_ENABLED = "master_enabled"
         private const val KEY_SAVED_ROTATION_PREFIX = "saved_rot_disp_"
         private const val KEY_ACTIVE_PRESET = "active_preset"
         private const val KEY_BOTTOM_STANDBY = "bottom_standby"

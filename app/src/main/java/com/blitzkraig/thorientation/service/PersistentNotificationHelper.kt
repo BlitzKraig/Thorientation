@@ -83,6 +83,7 @@ object PersistentNotificationHelper {
         val bottomDisplay = displays.firstOrNull { !it.isPrimary }
         val activePreset = engine.getActivePreset()
         val mode = getMode(context)
+        val isMaster = engine.isMasterEnabled()
 
         val topOrientation = topDisplay?.currentRotation ?: ScreenOrientation.LANDSCAPE
         val bottomOrientation = bottomDisplay?.currentRotation ?: ScreenOrientation.LANDSCAPE
@@ -103,10 +104,14 @@ object PersistentNotificationHelper {
         val topDisplayId = topDisplay?.displayId ?: 0
         val bottomDisplayId = bottomDisplay?.displayId ?: 1
 
-        val colStatusText = when (mode) {
-            MODE_TOP_SCREEN -> "Top: ${context.getString(topOrientation.shortLabelRes)}"
-            MODE_BOTTOM_SCREEN -> "Bottom: ${context.getString(bottomOrientation.shortLabelRes)}"
-            else -> "Preset: ${context.getString(activePreset.titleRes)}"
+        val colStatusText = if (!isMaster) {
+            "Thorientation: Off"
+        } else {
+            when (mode) {
+                MODE_TOP_SCREEN -> "Top: ${context.getString(topOrientation.shortLabelRes)}"
+                MODE_BOTTOM_SCREEN -> "Bottom: ${context.getString(bottomOrientation.shortLabelRes)}"
+                else -> "Preset: ${context.getString(activePreset.titleRes)}"
+            }
         }
 
         // Wire 4 buttons for collapsed view based on mode: Left, Landscape, Right, Auto
@@ -191,11 +196,15 @@ object PersistentNotificationHelper {
 
         // Expanded View
         val remoteExpanded = RemoteViews(context.packageName, R.layout.notification_expanded)
-        val expStatusText = buildString {
-            append("Preset: ").append(context.getString(activePreset.titleRes))
-            append(" • Top: ").append(context.getString(topOrientation.shortLabelRes))
-            if (bottomDisplay != null) {
-                append(" • Btm: ").append(context.getString(bottomOrientation.shortLabelRes))
+        val expStatusText = if (!isMaster) {
+            "Thorientation: Off (Overlays released)"
+        } else {
+            buildString {
+                append("Preset: ").append(context.getString(activePreset.titleRes))
+                append(" • Top: ").append(context.getString(topOrientation.shortLabelRes))
+                if (bottomDisplay != null) {
+                    append(" • Btm: ").append(context.getString(bottomOrientation.shortLabelRes))
+                }
             }
         }
         remoteExpanded.setTextViewText(R.id.notif_exp_header_status, expStatusText)

@@ -11,8 +11,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         // Initialize RotationEngine on app launch
-        RotationEngine.get(this)
-        if (BootReceiver.isStartAtBootEnabled(this) && PersistentNotificationHelper.isEnabled(this)) {
+        val engine = RotationEngine.get(this)
+        if (BootReceiver.isStartAtBootEnabled(this) && engine.isMasterEnabled() && PersistentNotificationHelper.isEnabled(this)) {
             PersistentNotificationHelper.startOrUpdate(this)
         }
     }

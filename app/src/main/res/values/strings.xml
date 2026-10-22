@@ -5,7 +5,7 @@
     <!-- Tiles -->
     <string name="tile_top_screen">Top Screen</string>
     <string name="tile_bottom_screen">Bottom Screen</string>
-    <string name="tile_dual_presets">Preset</string>
+    <string name="tile_dual_presets">Presets</string>
 
     <!-- Orientations -->
     <string name="orientation_auto">Auto Rotate</string>
@@ -52,8 +52,8 @@
     <string name="section_quick_tiles">QUICK SETTINGS TILES</string>
     <string name="quick_tiles_title">Quick Settings Integration</string>
     <string name="quick_tiles_desc">Control screen orientation from any app or game via your notification shade tiles.</string>
-    <string name="quick_tile_preset_label">Preset Tile:</string>
-    <string name="quick_tile_preset_desc">Cycles through dual presets on each tap.</string>
+    <string name="quick_tile_preset_label">Presets Tile:</string>
+    <string name="quick_tile_preset_desc">Instant dialog to select dual screen presets.</string>
     <string name="quick_tile_top_label">Top Screen Tile:</string>
     <string name="quick_tile_top_desc">Instant dialog to select Top Screen orientation.</string>
     <string name="quick_tile_bottom_label">Bottom Screen Tile:</string>

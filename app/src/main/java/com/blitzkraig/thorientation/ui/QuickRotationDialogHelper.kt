@@ -1,9 +1,10 @@
-﻿package com.blitzkraig.thorientation.ui
+package com.blitzkraig.thorientation.ui
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.service.quicksettings.TileService
 import com.blitzkraig.thorientation.engine.RotationEngine
+import com.blitzkraig.thorientation.model.DualPreset
 import com.blitzkraig.thorientation.model.ScreenOrientation
 
 object QuickRotationDialogHelper {
@@ -54,6 +55,65 @@ object QuickRotationDialogHelper {
             .setSingleChoiceItems(itemLabels, checkedIndex) { dialog, which ->
                 val selected = options[which]
                 engine.setOrientation(displayId, selected)
+                onComplete()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+
+        val dialog = builder.create()
+        dialog.setCanceledOnTouchOutside(true)
+
+        dialog.setOnDismissListener {
+            if (activeDialog == dialog) {
+                activeDialog = null
+            }
+        }
+
+        activeDialog = dialog
+        service.showDialog(dialog)
+    }
+
+    fun showPresets(
+        service: TileService,
+        displayName: String,
+        onComplete: () -> Unit = {}
+    ) {
+        if (service.isLocked) {
+            service.unlockAndRun {
+                showPresetsInternal(service, displayName, onComplete)
+            }
+        } else {
+            showPresetsInternal(service, displayName, onComplete)
+        }
+    }
+
+    private fun showPresetsInternal(
+        service: TileService,
+        displayName: String,
+        onComplete: () -> Unit
+    ) {
+        try {
+            activeDialog?.dismiss()
+        } catch (_: Throwable) {}
+
+        val engine = RotationEngine.get(service)
+        val currentPreset = engine.getActivePreset()
+
+        val options = listOf(
+            DualPreset.LANDSCAPE,
+            DualPreset.PORTRAIT,
+            DualPreset.PORTRAIT_REVERSE,
+            DualPreset.AUTO
+        )
+
+        val itemLabels = options.map { service.getString(it.titleRes) }.toTypedArray()
+        val checkedIndex = options.indexOf(currentPreset)
+
+        val builder = AlertDialog.Builder(service, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle(displayName)
+            .setSingleChoiceItems(itemLabels, checkedIndex) { dialog, which ->
+                val selected = options[which]
+                engine.applyPreset(selected)
                 onComplete()
                 dialog.dismiss()
             }

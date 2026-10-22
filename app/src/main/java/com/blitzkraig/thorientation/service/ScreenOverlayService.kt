@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.service
+package com.blitzkraig.thorientation.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -90,6 +90,7 @@ class ScreenOverlayService : Service() {
             autoTrackingDisplays.remove(displayId)
             updateSensorListenerState()
             removeOverlay(displayId)
+            checkStopSelfIfIdle()
         }
         override fun onDisplayChanged(displayId: Int) {
             if (displayId == Display.DEFAULT_DISPLAY) {
@@ -126,14 +127,17 @@ class ScreenOverlayService : Service() {
                 if (displayId >= 0) {
                     removeOverlay(displayId)
                 }
+                checkStopSelfIfIdle()
             }
             ACTION_SET_STANDBY -> {
                 val enable = intent.getBooleanExtra(EXTRA_STANDBY_ENABLE, false)
                 val displayId = intent.getIntExtra(EXTRA_DISPLAY_ID, 1)
                 setBottomScreenStandby(displayId, enable)
+                checkStopSelfIfIdle()
             }
             ACTION_UPDATE_NOTIFICATION -> {
                 startForegroundServiceNotification()
+                checkStopSelfIfIdle()
             }
         }
 
@@ -321,17 +325,26 @@ class ScreenOverlayService : Service() {
         }
     }
 
+    private fun isIdle(): Boolean {
+        return activeOverlays.isEmpty() &&
+                standbyOverlayView == null &&
+                autoTrackingDisplays.isEmpty() &&
+                !isTopAuto
+    }
+
+    private fun checkStopSelfIfIdle() {
+        if (!PersistentNotificationHelper.isEnabled(this) && isIdle()) {
+            Log.d(TAG, "No active overlays or persistent notification; stopping service")
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
     private fun startForegroundServiceNotification() {
         if (PersistentNotificationHelper.isEnabled(this)) {
             val notification = PersistentNotificationHelper.buildNotification(this)
             startForeground(NOTIFICATION_ID, notification)
         } else {
-            // Check if service needs to stay alive for active overlays, standby, auto-tracking or top auto
-            if (activeOverlays.isEmpty() && standbyOverlayView == null && autoTrackingDisplays.isEmpty() && !isTopAuto) {
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
-                return
-            }
             startSilentForegroundNotification()
         }
     }

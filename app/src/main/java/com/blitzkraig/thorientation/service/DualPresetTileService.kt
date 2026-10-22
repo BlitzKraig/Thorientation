@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.service
+package com.blitzkraig.thorientation.service
 
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -7,6 +7,7 @@ import android.service.quicksettings.TileService
 import com.blitzkraig.thorientation.R
 import com.blitzkraig.thorientation.engine.RotationEngine
 import com.blitzkraig.thorientation.model.DualPreset
+import com.blitzkraig.thorientation.ui.QuickRotationDialogHelper
 
 class DualPresetTileService : TileService() {
 
@@ -17,12 +18,11 @@ class DualPresetTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        val engine = RotationEngine.get(this)
-        val currentPreset = engine.getActivePreset()
-        val nextPreset = currentPreset.next()
-
-        engine.applyPreset(nextPreset)
-        updateTileState()
+        QuickRotationDialogHelper.showPresets(
+            service = this,
+            displayName = getString(R.string.tile_dual_presets),
+            onComplete = { updateTileState() }
+        )
     }
 
     private fun updateTileState() {

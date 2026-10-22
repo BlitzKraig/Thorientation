@@ -15,6 +15,11 @@ class OrientationAccessibilityService : AccessibilityService() {
         Log.i(TAG, "OrientationAccessibilityService connected by system; enforcing orientation overlays")
         instance = this
 
+        if (!com.blitzkraig.thorientation.receiver.BootReceiver.isStartAtBootEnabled(this)) {
+            Log.i(TAG, "Start at boot is disabled; skipping orientation restore in AccessibilityService")
+            return
+        }
+
         // Re-apply saved orientations to ensure top and bottom screens stay in sync
         val engine = RotationEngine.get(this)
         val displays = engine.getDisplays()

@@ -25,6 +25,7 @@ import android.view.WindowManager
 import androidx.core.app.NotificationCompat
 import com.blitzkraig.thorientation.R
 import com.blitzkraig.thorientation.model.ScreenOrientation
+import com.blitzkraig.thorientation.receiver.BootReceiver
 
 class ScreenOverlayService : Service() {
 
@@ -108,21 +109,33 @@ class ScreenOverlayService : Service() {
             lastSensorOrientation = ScreenOrientation.fromSurfaceRotation(topDisplay.rotation)
         }
         startForegroundServiceNotification()
-        restoreSavedOrientations()
+        if (BootReceiver.isStartAtBootEnabled(this)) {
+            restoreSavedOrientations()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) {
-            Log.i(TAG, "Service restarted by system with null intent; restoring saved orientations")
-            restoreSavedOrientations()
-            checkStopSelfIfIdle()
-            return START_STICKY
+            Log.i(TAG, "Service restarted by system with null intent")
+            if (BootReceiver.isStartAtBootEnabled(this)) {
+                restoreSavedOrientations()
+                checkStopSelfIfIdle()
+                return START_STICKY
+            } else {
+                stopSelf()
+                return START_NOT_STICKY
+            }
         }
 
         val action = intent.action ?: run {
-            restoreSavedOrientations()
-            checkStopSelfIfIdle()
-            return START_STICKY
+            if (BootReceiver.isStartAtBootEnabled(this)) {
+                restoreSavedOrientations()
+                checkStopSelfIfIdle()
+                return START_STICKY
+            } else {
+                stopSelf()
+                return START_NOT_STICKY
+            }
         }
 
         when (action) {
@@ -158,13 +171,13 @@ class ScreenOverlayService : Service() {
             }
         }
 
-        return START_STICKY
+        return if (BootReceiver.isStartAtBootEnabled(this)) START_STICKY else START_NOT_STICKY
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         Log.d(TAG, "onTaskRemoved: app task removed from recents, keeping overlay service active")
-        if (activeOverlays.isEmpty()) {
+        if (activeOverlays.isEmpty() && BootReceiver.isStartAtBootEnabled(this)) {
             restoreSavedOrientations()
         }
     }

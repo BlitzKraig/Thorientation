@@ -1,11 +1,14 @@
 package com.blitzkraig.thorientation.service
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityManager
 import com.blitzkraig.thorientation.engine.RotationEngine
 
 class OrientationAccessibilityService : AccessibilityService() {
@@ -57,20 +60,67 @@ class OrientationAccessibilityService : AccessibilityService() {
 
         fun isRunning(): Boolean = instance != null
 
+        fun disable(): Boolean {
+            val service = instance ?: return false
+            return try {
+                service.disableSelf()
+                instance = null
+                true
+            } catch (e: Throwable) {
+                Log.e(TAG, "Failed to disableSelf()", e)
+                false
+            }
+        }
+
         fun isEnabledInSettings(context: Context): Boolean {
+            if (isRunning()) {
+                return true
+            }
+
+            val expectedComponentName = ComponentName(context, OrientationAccessibilityService::class.java)
             val expectedServiceName = "${context.packageName}/${OrientationAccessibilityService::class.java.canonicalName}"
+            val expectedShortName = "${context.packageName}/.service.OrientationAccessibilityService"
+
             val enabledServices = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-            ) ?: return false
-            val colonSplitter = TextUtils.SimpleStringSplitter(':')
-            colonSplitter.setString(enabledServices)
-            while (colonSplitter.hasNext()) {
-                val componentName = colonSplitter.next()
-                if (componentName.equals(expectedServiceName, ignoreCase = true)) {
-                    return true
+            )
+            if (enabledServices != null) {
+                val colonSplitter = TextUtils.SimpleStringSplitter(':')
+                colonSplitter.setString(enabledServices)
+                while (colonSplitter.hasNext()) {
+                    val componentNameStr = colonSplitter.next()
+                    val cn = ComponentName.unflattenFromString(componentNameStr)
+                    if (cn != null && cn == expectedComponentName) {
+                        return true
+                    }
+                    if (componentNameStr.equals(expectedServiceName, ignoreCase = true) ||
+                        componentNameStr.equals(expectedShortName, ignoreCase = true)
+                    ) {
+                        return true
+                    }
                 }
             }
+
+            // Also check via AccessibilityManager as a secondary fallback
+            try {
+                val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+                val services = am?.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
+                if (services != null) {
+                    for (service in services) {
+                        val si = service.resolveInfo?.serviceInfo
+                        if (si != null &&
+                            si.packageName.equals(context.packageName, ignoreCase = true) &&
+                            si.name.equals(OrientationAccessibilityService::class.java.name, ignoreCase = true)
+                        ) {
+                            return true
+                        }
+                    }
+                }
+            } catch (e: Throwable) {
+                Log.w(TAG, "Error checking AccessibilityManager", e)
+            }
+
             return false
         }
     }

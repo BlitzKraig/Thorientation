@@ -1,6 +1,7 @@
 package com.blitzkraig.thorientation.ui
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -131,20 +132,54 @@ class MainActivity : AppCompatActivity() {
             ).show()
         }
 
-        binding.switchPersistenceService.setOnClickListener {
-            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        binding.switchPersistenceService.setOnCheckedChangeListener { _, isChecked ->
+            onPersistenceServiceToggle(isChecked)
+        }
+        binding.cardPersistenceService.setOnClickListener {
+            binding.switchPersistenceService.isChecked = !binding.switchPersistenceService.isChecked
+        }
+    }
+
+    private fun onPersistenceServiceToggle(isChecked: Boolean) {
+        if (!isChecked) {
+            // Turning OFF: If the service is running, it can disable itself directly
+            if (OrientationAccessibilityService.disable()) {
+                binding.tvPersistenceStatus.text = getString(R.string.pref_persistence_service_desc)
+                Toast.makeText(this, "Background persistence disabled", Toast.LENGTH_SHORT).show()
+            } else {
+                // If service instance was null or disableSelf failed, direct user to settings to turn it off
+                openAccessibilitySettings(forEnabling = false)
             }
-            try {
-                startActivity(intent)
-                Toast.makeText(
-                    this,
-                    "Enable 'Thorientation' in Accessibility to keep orientations active when closing apps",
-                    Toast.LENGTH_LONG
-                ).show()
-            } catch (e: Throwable) {
-                android.util.Log.e("MainActivity", "Cannot open accessibility settings", e)
-            }
+        } else {
+            // Turning ON: Accessibility services cannot be enabled programmatically; guide user to settings
+            openAccessibilitySettings(forEnabling = true)
+        }
+    }
+
+    private fun openAccessibilitySettings(forEnabling: Boolean) {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        val message = if (forEnabling) {
+            "Enable 'Thorientation' in Accessibility to keep orientations active when closing apps"
+        } else {
+            "Disable 'Thorientation' in Accessibility settings"
+        }
+        try {
+            startActivity(intent)
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        } catch (t: Throwable) {
+            android.util.Log.e("MainActivity", "Cannot open accessibility settings", t)
+            revertPersistenceSwitchState()
+        }
+    }
+
+    private fun revertPersistenceSwitchState() {
+        val isEnabled = OrientationAccessibilityService.isEnabledInSettings(this)
+        binding.switchPersistenceService.setOnCheckedChangeListener(null)
+        binding.switchPersistenceService.isChecked = isEnabled
+        binding.switchPersistenceService.setOnCheckedChangeListener { _, isChecked ->
+            onPersistenceServiceToggle(isChecked)
         }
     }
 
@@ -208,7 +243,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun updatePersistenceServiceUi() {
         val isEnabled = OrientationAccessibilityService.isEnabledInSettings(this)
-        binding.switchPersistenceService.isChecked = isEnabled
+        if (binding.switchPersistenceService.isChecked != isEnabled) {
+            binding.switchPersistenceService.setOnCheckedChangeListener(null)
+            binding.switchPersistenceService.isChecked = isEnabled
+            binding.switchPersistenceService.setOnCheckedChangeListener { _, isChecked ->
+                onPersistenceServiceToggle(isChecked)
+            }
+        }
         binding.tvPersistenceStatus.text = if (isEnabled) {
             "Active — orientations survive 'Close All' in App Switcher"
         } else {

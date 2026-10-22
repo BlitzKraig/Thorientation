@@ -59,4 +59,9 @@
     <string name="quick_tile_bottom_label">Bottom Screen Tile:</string>
     <string name="quick_tile_bottom_desc">Instant dialog to select Bottom Screen orientation.</string>
     <string name="quick_tiles_tip">To add these tiles: swipe down twice from the top of your screen, tap the pencil (Edit) icon, and drag the Thorientation tiles into your active panel.</string>
+
+    <!-- Background Persistence Accessibility Service -->
+    <string name="pref_persistence_service_title">Background Persistence</string>
+    <string name="pref_persistence_service_desc">Keeps screen orientation active when closing all apps in the App Switcher (like Kinestop &amp; Heimdall)</string>
+    <string name="accessibility_service_desc">Keeps Thorientation display orientations and quick controls active even when apps are cleared from the App Switcher.</string>
 </resources>

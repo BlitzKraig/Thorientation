@@ -108,10 +108,22 @@ class ScreenOverlayService : Service() {
             lastSensorOrientation = ScreenOrientation.fromSurfaceRotation(topDisplay.rotation)
         }
         startForegroundServiceNotification()
+        restoreSavedOrientations()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val action = intent?.action ?: return START_STICKY
+        if (intent == null) {
+            Log.i(TAG, "Service restarted by system with null intent; restoring saved orientations")
+            restoreSavedOrientations()
+            checkStopSelfIfIdle()
+            return START_STICKY
+        }
+
+        val action = intent.action ?: run {
+            restoreSavedOrientations()
+            checkStopSelfIfIdle()
+            return START_STICKY
+        }
 
         when (action) {
             ACTION_SET_OVERLAY_ORIENTATION -> {
@@ -136,12 +148,47 @@ class ScreenOverlayService : Service() {
                 checkStopSelfIfIdle()
             }
             ACTION_UPDATE_NOTIFICATION -> {
+                if (intent.hasExtra(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED)) {
+                    val enabled = intent.getBooleanExtra(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED, false)
+                    val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                    prefs.edit().putBoolean(PersistentNotificationHelper.KEY_NOTIFICATION_ENABLED, enabled).apply()
+                }
                 startForegroundServiceNotification()
                 checkStopSelfIfIdle()
             }
         }
 
         return START_STICKY
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        Log.d(TAG, "onTaskRemoved: app task removed from recents, keeping overlay service active")
+        if (activeOverlays.isEmpty()) {
+            restoreSavedOrientations()
+        }
+    }
+
+    private fun restoreSavedOrientations() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val displays = displayManager.displays
+        for (display in displays) {
+            val key = "$KEY_SAVED_ROTATION_PREFIX${display.displayId}"
+            val ordinal = prefs.getInt(key, -1)
+            if (ordinal in ScreenOrientation.values().indices) {
+                val orientation = ScreenOrientation.values()[ordinal]
+                val sanitized = if (orientation == ScreenOrientation.REVERSE_LANDSCAPE) ScreenOrientation.LANDSCAPE else orientation
+                Log.d(TAG, "Restoring overlay orientation on display ${display.displayId} to ${sanitized.name}")
+                applyOverlayOrientation(display.displayId, sanitized)
+            }
+        }
+        val standby = prefs.getBoolean(KEY_BOTTOM_STANDBY, false)
+        if (standby) {
+            val bottomDisplay = displays.firstOrNull { it.displayId != Display.DEFAULT_DISPLAY }
+            if (bottomDisplay != null) {
+                setBottomScreenStandby(bottomDisplay.displayId, true)
+            }
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -170,6 +217,9 @@ class ScreenOverlayService : Service() {
     }
 
     private fun applyOverlayOrientation(displayId: Int, orientation: ScreenOrientation) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt("$KEY_SAVED_ROTATION_PREFIX$displayId", orientation.ordinal).apply()
+
         if (!Settings.canDrawOverlays(this)) {
             Log.w(TAG, "Cannot apply overlay: overlay permission not granted")
             return
@@ -265,6 +315,9 @@ class ScreenOverlayService : Service() {
     }
 
     private fun removeOverlay(displayId: Int) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().remove("$KEY_SAVED_ROTATION_PREFIX$displayId").apply()
+
         if (displayId == Display.DEFAULT_DISPLAY) {
             isTopAuto = false
         }
@@ -280,6 +333,9 @@ class ScreenOverlayService : Service() {
     }
 
     private fun setBottomScreenStandby(displayId: Int, enable: Boolean) {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_BOTTOM_STANDBY, enable).apply()
+
         if (!Settings.canDrawOverlays(this)) return
 
         standbyOverlayView?.let { (wm, view) ->
@@ -395,6 +451,10 @@ class ScreenOverlayService : Service() {
     companion object {
         private const val TAG = "ScreenOverlayService"
         const val NOTIFICATION_ID = 1001
+
+        private const val PREFS_NAME = "thorientation_prefs"
+        private const val KEY_SAVED_ROTATION_PREFIX = "saved_rot_disp_"
+        private const val KEY_BOTTOM_STANDBY = "bottom_standby"
 
         const val ACTION_SET_OVERLAY_ORIENTATION = "com.blitzkraig.thorientation.action.SET_OVERLAY_ORIENTATION"
         const val ACTION_CLEAR_OVERLAY = "com.blitzkraig.thorientation.action.CLEAR_OVERLAY"

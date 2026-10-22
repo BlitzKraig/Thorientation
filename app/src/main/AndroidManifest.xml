@@ -85,11 +85,25 @@
         <service
             android:name=".service.ScreenOverlayService"
             android:exported="false"
+            android:stopWithTask="false"
             android:foregroundServiceType="specialUse"
             tools:ignore="ForegroundServicePermission">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Screen orientation and display overlay management" />
+        </service>
+
+        <!-- Background Persistence Accessibility Service (protects app against task-killer force stop) -->
+        <service
+            android:name=".service.OrientationAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
         </service>
 
         <!-- Notification Action Receiver for Quick Notification Buttons -->

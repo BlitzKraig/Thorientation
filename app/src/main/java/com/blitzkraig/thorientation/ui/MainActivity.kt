@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.ui
+package com.blitzkraig.thorientation.ui
 
 import android.Manifest
 import android.content.Context
@@ -28,6 +28,7 @@ import com.blitzkraig.thorientation.engine.ThorSettingsEngine
 import com.blitzkraig.thorientation.model.DualPreset
 import com.blitzkraig.thorientation.model.PrivilegeStatus
 import com.blitzkraig.thorientation.model.ScreenOrientation
+import com.blitzkraig.thorientation.service.OrientationAccessibilityService
 import com.blitzkraig.thorientation.service.PersistentNotificationHelper
 import com.google.android.material.button.MaterialButton
 
@@ -119,6 +120,22 @@ class MainActivity : AppCompatActivity() {
             updateNotifTargetHighlights()
             Toast.makeText(this, "Notification buttons: Bottom Screen", Toast.LENGTH_SHORT).show()
         }
+
+        binding.switchPersistenceService.setOnClickListener {
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            try {
+                startActivity(intent)
+                Toast.makeText(
+                    this,
+                    "Enable 'Thorientation' in Accessibility to keep orientations active when closing apps",
+                    Toast.LENGTH_LONG
+                ).show()
+            } catch (e: Throwable) {
+                android.util.Log.e("MainActivity", "Cannot open accessibility settings", e)
+            }
+        }
     }
 
     private fun onPersistentNotifToggle(isChecked: Boolean) {
@@ -159,6 +176,17 @@ class MainActivity : AppCompatActivity() {
         renderDisplayCards()
         updatePresetHighlights()
         updatePersistentNotifUi()
+        updatePersistenceServiceUi()
+    }
+
+    private fun updatePersistenceServiceUi() {
+        val isEnabled = OrientationAccessibilityService.isEnabledInSettings(this)
+        binding.switchPersistenceService.isChecked = isEnabled
+        binding.tvPersistenceStatus.text = if (isEnabled) {
+            "Active — orientations survive 'Close All' in App Switcher"
+        } else {
+            getString(R.string.pref_persistence_service_desc)
+        }
     }
 
     private fun updatePersistentNotifUi() {

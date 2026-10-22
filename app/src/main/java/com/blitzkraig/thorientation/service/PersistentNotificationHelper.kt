@@ -1,4 +1,4 @@
-﻿package com.blitzkraig.thorientation.service
+package com.blitzkraig.thorientation.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -366,6 +366,8 @@ object PersistentNotificationHelper {
     fun startOrUpdate(context: Context) {
         val intent = Intent(context, ScreenOverlayService::class.java).apply {
             action = ScreenOverlayService.ACTION_UPDATE_NOTIFICATION
+            putExtra(KEY_NOTIFICATION_ENABLED, isEnabled(context))
+            putExtra(KEY_NOTIFICATION_MODE, getMode(context))
         }
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

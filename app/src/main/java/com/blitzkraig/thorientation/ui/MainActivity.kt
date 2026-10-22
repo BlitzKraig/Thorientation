@@ -28,6 +28,7 @@ import com.blitzkraig.thorientation.engine.ThorSettingsEngine
 import com.blitzkraig.thorientation.model.DualPreset
 import com.blitzkraig.thorientation.model.PrivilegeStatus
 import com.blitzkraig.thorientation.model.ScreenOrientation
+import com.blitzkraig.thorientation.receiver.BootReceiver
 import com.blitzkraig.thorientation.service.OrientationAccessibilityService
 import com.blitzkraig.thorientation.service.PersistentNotificationHelper
 import com.google.android.material.button.MaterialButton
@@ -121,6 +122,15 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Notification buttons: Bottom Screen", Toast.LENGTH_SHORT).show()
         }
 
+        binding.switchStartAtBoot.setOnCheckedChangeListener { _, isChecked ->
+            BootReceiver.setStartAtBootEnabled(this, isChecked)
+            Toast.makeText(
+                this,
+                if (isChecked) "Start at boot enabled" else "Start at boot disabled",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
         binding.switchPersistenceService.setOnClickListener {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -176,7 +186,24 @@ class MainActivity : AppCompatActivity() {
         renderDisplayCards()
         updatePresetHighlights()
         updatePersistentNotifUi()
+        updateStartAtBootUi()
         updatePersistenceServiceUi()
+    }
+
+    private fun updateStartAtBootUi() {
+        val isEnabled = BootReceiver.isStartAtBootEnabled(this)
+        if (binding.switchStartAtBoot.isChecked != isEnabled) {
+            binding.switchStartAtBoot.setOnCheckedChangeListener(null)
+            binding.switchStartAtBoot.isChecked = isEnabled
+            binding.switchStartAtBoot.setOnCheckedChangeListener { _, isChecked ->
+                BootReceiver.setStartAtBootEnabled(this, isChecked)
+                Toast.makeText(
+                    this,
+                    if (isChecked) "Start at boot enabled" else "Start at boot disabled",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun updatePersistenceServiceUi() {

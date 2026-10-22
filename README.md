@@ -41,14 +41,16 @@ Add the tiles to your AYN Thor notification pull-down shade for instant access a
 
 ## 🚀 Installation & Setup
 
-### Install via ADB
-Connect your AYN Thor via USB (or wireless debugging) and run:
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-```
+### Direct APK Download
+1. Head over to the [GitHub Releases](https://github.com/BlitzKraig/Thorientation/releases) page.
+2. Download the latest `Thorientation-v1.0.0.apk`.
+3. Open and install it on your AYN Thor (allow installing unknown apps if prompted).
 
-The compiled APK is located at:
-`app/build/outputs/apk/debug/app-debug.apk`
+### Install via ADB
+Alternatively, connect your AYN Thor via USB or wireless debugging and run:
+```bash
+adb install -r Thorientation-v1.0.0.apk
+```
 
 ---
 
